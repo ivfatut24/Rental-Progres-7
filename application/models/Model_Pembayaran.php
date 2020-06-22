@@ -7,11 +7,8 @@ class Model_Pembayaran extends CI_Model {
 	function getPembayaran()
 	{
 		$id_transaksi = $this->input->post('id_transaksi');
-		$id_user = $this->input->post('id_user');
 		
 		$this->db->join('transaksi t', 't.id_transaksi = p.id_transaksi');
-		$this->db->join('user u', 'u.id_pembayaran = p.id_pembayaran');
-
 		
 		return $this->db->get_where('pembayaran p', ['p.id_transaksi' => $id_transaksi])->row();
 	}
@@ -29,7 +26,7 @@ class Model_Pembayaran extends CI_Model {
 		
 		$ret = $this->getArrayPembayaran($limit, $start);
 		foreach ($ret as $key => $value) {
-
+			$this->db->join('barangs b', 'b.id_barang = dt.id_barang');
 			$this->db->where('id_transaksi', $value['id_transaksi']);			
 			$ret[$key]['detail transaksi'] = $this->db->get('detail_transaksi dt')->result_array();
 		}
@@ -57,12 +54,8 @@ class Model_Pembayaran extends CI_Model {
 			}			
 		}
 		
-	
 		$this->db->order_by('tgl_deadline', 'desc');
 		return $this->db->get('pembayaran')->result();
-		
-		
-			
 	}
 
 	function changeStatusPembayaran($id_pembayaran, $status)
@@ -111,8 +104,7 @@ class Model_Pembayaran extends CI_Model {
 	private function getArrayPembayaran($limit, $start)
 	{
 		$id_user = $this->session->userdata('id_user');
-	
-	
+
 		$this->db->join('pembayaran p', 'p.id_transaksi = t.id_transaksi');
 		$this->db->join('tujuan tuj', 'tuj.id = t.id_tujuan');
 		$this->db->order_by('tgl_deadline', 'desc');
